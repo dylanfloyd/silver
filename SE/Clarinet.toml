@@ -2,5 +2,5 @@
 name = "tutorial"
 requirements = []
 [contracts.my-contract]
-path = "contracts/my-contract.clar"
+path = "azurevm/cic.properties"
 depends_on = []
