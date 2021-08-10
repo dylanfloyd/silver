@@ -1,0 +1,6 @@
+[project]
+name = "tutorial"
+requirements = []
+[contracts.my-contract]
+path = "contracts/my-contract.clar"
+depends_on = []
