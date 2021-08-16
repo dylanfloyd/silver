@@ -19,12 +19,15 @@ AOTX_SECURE_JAR_SRC_FILES = GIT_REPO_DIR + '/aotx-secure'
 AOTL_PROJECT_JAR_SRC_FILES = GIT_REPO_DIR + '/aotl-project'
 JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure']
 
-REMOTE_BRANCH = 'remotes/origin/main' #Examples: SE, WEST, MOKA
+REMOTE_NAME = 'origin'
+BRANCH_NAME = 'main' #Examples: SE, WEST, MOKA
+REMOTE_BRANCH = 'remotes/{}/{}'.format(REMOTE_NAME, BRANCH_NAME)
+
 
 
 def git_fetch(output_dst, rmt_branch, gitdir=GIT_REPO_DIR):
 	# TODO: Fetch from SE only
-	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir,rmt_branch, output_dst))
+	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name output_dst))
 
 def git_diff(repo, rmt_branch, output_dst, gitdir=GIT_REPO_DIR):
 	os.system('cd {} && git fetch && git diff --name-only {} > {}/latest_git_diff.txt'.format(gitdir,rmt_branch, output_dst))
