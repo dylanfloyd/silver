@@ -25,9 +25,9 @@ REMOTE_BRANCH = 'remotes/{}/{}'.format(REMOTE_NAME, BRANCH_NAME)
 
 
 
-def git_fetch(output_dst, rmt_branch, gitdir=GIT_REPO_DIR):
+def git_fetch(output_dst, rmt_name,branch_name, gitdir=GIT_REPO_DIR):
 	# TODO: Fetch from SE only
-	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name output_dst))
+	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
 
 def git_diff(repo, rmt_branch, output_dst, gitdir=GIT_REPO_DIR):
 	os.system('cd {} && git fetch && git diff --name-only {} > {}/latest_git_diff.txt'.format(gitdir,rmt_branch, output_dst))
@@ -247,7 +247,7 @@ if __name__ == "__main__":
 	working_dir = os.getcwd()
 
 	os.system('cd /{} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
-	git_fetch(output_dst=working_dir, rmt_branch=REMOTE_BRANCH, gitdir=GIT_REPO_DIR)
+	git_fetch(output_dst=working_dir, rmt_name=REMOTE_NAME, branch_name=BRANCH_NAME, gitdir=GIT_REPO_DIR)
 
 	# Reviewing changes...
 	diff_local_vs_remote_paths, diff_objects = git_diff(repo=gr, output_dst=working_dir,rmt_branch=REMOTE_BRANCH, gitdir=GIT_REPO_DIR)
