@@ -19,12 +19,12 @@ AOTX_SECURE_JAR_SRC_FILES = GIT_REPO_DIR + '/aotx-secure'
 AOTL_PROJECT_JAR_SRC_FILES = GIT_REPO_DIR + '/aotl-project'
 JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure']
 
-REMOTE_BRANCH = 'origin/main' #Examples: SE, WEST, MOKA
+REMOTE_BRANCH = 'remotes/origin/main' #Examples: SE, WEST, MOKA
 
 
 def git_fetch(output_dst, rmt_branch, gitdir=GIT_REPO_DIR):
 	# TODO: Fetch from SE only
-	os.system('cd {} && git fetch && git status > {}/latest_git_status.txt'.format(gitdir, output_dst))
+	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir,rmt_branch, output_dst))
 
 def git_diff(repo, rmt_branch, output_dst, gitdir=GIT_REPO_DIR):
 	os.system('cd {} && git fetch && git diff --name-only {} > {}/latest_git_diff.txt'.format(gitdir,rmt_branch, output_dst))
@@ -242,7 +242,8 @@ if __name__ == "__main__":
 	# Gathering...
 	gr = Repo(GIT_REPO_DIR)
 	working_dir = os.getcwd()
-	os.system('cd {} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
+
+	os.system('cd /{} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
 	git_fetch(output_dst=working_dir, rmt_branch=REMOTE_BRANCH, gitdir=GIT_REPO_DIR)
 
 	# Reviewing changes...
@@ -310,4 +311,3 @@ if __name__ == "__main__":
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
 		os.system('cd {} && git add . && git commit -m " {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
-
