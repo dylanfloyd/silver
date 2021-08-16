@@ -27,10 +27,10 @@ REMOTE_BRANCH = 'remotes/{}/{}'.format(REMOTE_NAME, BRANCH_NAME)
 
 def git_fetch(output_dst, rmt_name,branch_name, gitdir=GIT_REPO_DIR):
 	# TODO: Fetch from SE only
-	os.system('cd {} && git fetch {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
+	os.system('cd /{} && git fetch {} {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
 
 def git_diff(repo, rmt_branch, output_dst, gitdir=GIT_REPO_DIR):
-	os.system('cd {} && git fetch && git diff --name-only {} > {}/latest_git_diff.txt'.format(gitdir,rmt_branch, output_dst))
+	os.system('cd /{} && git fetch && git diff --name-only {} > {}/latest_git_diff.txt'.format(gitdir, rmt_branch, output_dst))
 	diff_paths = {
 		'A': [],
 		'D': [],
@@ -215,10 +215,10 @@ def deploy_changes_for_R(src_dst_dict, dry_run=False):
 def run_git_pull(output_dst=ROOT_DIR):
 	p = Path(os.getcwd()).parents[0]
 	if ROOT_DIR[-1] == '/':
-		os.system('cd {} && git pull > {}latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd /{} && git pull > {}latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
 	else:
-		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd /{} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
 def ant_build(path_to_jar_src_code, xml_path, jarname):
 	# TODO: write the proper command. Send jars to JAR folder within site specific.
@@ -313,4 +313,4 @@ if __name__ == "__main__":
 		now = datetime.utcnow()
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
-		os.system('cd {} && git add . && git commit -m " {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
+		os.system('cd /{} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
