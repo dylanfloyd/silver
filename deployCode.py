@@ -62,6 +62,20 @@ def git_diff(repo, rmt_name, branch_name, output_dst, gitdir=GIT_REPO_DIR):
 
 	return diff_paths, diff_objects_by_type
 
+
+def remove_codecloud_path_prefixes(apath, branch_name):
+	sub_path = 'site_specific/{}'.format(branch_name) + '/'
+	try:
+		dsts = apath.split(sub_path)
+		print(dsts)
+		dst = dsts[1]
+		return dst
+
+	except:
+		return apath
+
+
+
 def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=False):
 	'''letter can be 'A' or 'M' but none of the other git diff types'''
 	# Gather list of directories within the git repo dir. Used in dynamic path processing to get the relative path.
