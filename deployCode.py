@@ -112,6 +112,7 @@ def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=Fal
 					# if dst_root[-1] != '/':
 					# 	dst_path += '/'
 					dst_path += rel_path
+					dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
 					src_to_dst_pairs.append((src_path, dst_path))
 					if dry_run:
 						print("src: {} | dst: {}".format(src_path, dst_path))
@@ -124,6 +125,7 @@ def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=Fal
 			print("not located in dir")
 			dst_path = dst_root + a_diff.a_path
 			print(src_path, dst_path)
+			dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
 			src_to_dst_pairs.append((src_path, dst_path))
 
 		# Reset src and dst paths
@@ -138,6 +140,7 @@ def prepare_changes_for_R(diff_data):
 	for a_diff in diff:
 		src = a_diff.a_path
 		dst = a_diff.b_path
+		dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
 		src_dst_pairs_list.append((src,dst))
 	return src_dst_pairs_list
 
@@ -147,6 +150,7 @@ def prepare_changes_for_D(diff_data):
 	for a_diff in diff:
 		src = a_diff.a_path
 		dst = a_diff.b_path
+		dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
 		src_dst_pairs_list.append((src,dst))
 	return src_dst_pairs_list
 
@@ -330,5 +334,7 @@ if __name__ == "__main__":
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
 		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
+
+	pprint(src_dst_pairs_dict)
 
 
