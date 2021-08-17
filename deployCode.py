@@ -98,7 +98,7 @@ def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=Fal
 		src_path += a_diff.a_path
 		is_related_to_jar_src_code = src_path.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code:
+		if is_related_to_jar_src_code >=0:
 			#returns -1 if cannot find this top level subdirectory
 			dst_path = dst_root + a_diff.a_path
 			dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
@@ -150,7 +150,7 @@ def prepare_changes_for_R(diff_data):
 		src = a_diff.a_path
 		is_related_to_jar_src_code = src.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code:
+		if is_related_to_jar_src_code >=0:
 			dst = a_diff.b_path
 			dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
 			src_dst_pairs_list.append((src,dst))
@@ -164,7 +164,7 @@ def prepare_changes_for_D(diff_data):
 		src = a_diff.a_path
 		is_related_to_jar_src_code = src.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code:
+		if is_related_to_jar_src_code >=0:
 			dst = a_diff.b_path
 			dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
 			src_dst_pairs_list.append((src,dst))
