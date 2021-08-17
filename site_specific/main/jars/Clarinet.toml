@@ -4,3 +4,4 @@ requirements = []
 [contracts.my-contract]
 path = "azurevm/cic.properties"
 depends_on = []
+test = "code modifications and git tracking"
