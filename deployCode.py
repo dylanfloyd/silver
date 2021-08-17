@@ -299,7 +299,6 @@ if __name__ == "__main__":
 		non_jar_related_src_dst_pairs_dict[letter] = new_src_dst_pair_list
 
 
-	# TODO: Trigger the ant build if found changes like below.
 	if not DRY_RUN:
 		# Merge the changes so the files can be copied
 		run_git_pull()
@@ -353,6 +352,7 @@ if __name__ == "__main__":
 		ant_build(path_to_jar_src_code, xml_path, 'aotl-project')
 		ant_build(path_to_jar_src_code, xml_path, 'aotx-secure')
 		ant_build(path_to_jar_src_code, xml_path, 'war')
+		#command looks like: 'ant {} {}'.format(jar_type_name, path_to_xml) #see ellen's xml code
 
 		# TODO: Call function from other python script to move all jars/war file sin right repo. (Including inside gitrepo dir!)
 
@@ -362,6 +362,10 @@ if __name__ == "__main__":
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
 		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
 
-	pprint(src_dst_pairs_dict)
+	pprint(non_jar_related_src_dst_pairs_dict)
+
+	# TODO: figure out where we want to want to run this file from on the app VM, make sure that doesn't break anything.
+	# Dependency on Jim to get the xml file locations
+	#
 
 
