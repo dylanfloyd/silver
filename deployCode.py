@@ -74,7 +74,9 @@ def remove_codecloud_path_prefixes(apath, branch_name):
 	except:
 		return apath
 
-
+def check_if_src_path_is_related_to_jar_source_code(apath):
+	top_dir_for_non_jar_src_code = 'site_specific/{}'.format(BRANCH_NAME) + '/'
+	return apath.find(top_dir_for_non_jar_src_code)
 
 def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=False):
 	'''letter can be 'A' or 'M' but none of the other git diff types'''
@@ -92,82 +94,72 @@ def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=Fal
 	dst_path = dst_root
 	src_to_dst_pairs = []
 	src_path = GIT_REPO_DIR + '/'
-	top_dir_for_non_jar_src_code = 'site_specific/{}'.format(BRANCH_NAME) + '/'
 
 	for a_diff in diff:
 		src_path += a_diff.a_path
-		is_related_to_jar_src_code = src_path.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code >=0:
-			#returns -1 if cannot find this top level subdirectory
-			dst_path = dst_root + a_diff.a_path
-			dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
-			src_to_dst_pairs.append((src_path, dst_path))
-
-		# 	located_in_subdir = False
-		# 	for src_sdname in src_subdir_names:
-		# 		print(src_subdir_names)
-		# 		print(src_sdname == src_path)
-		# 		relative_path_index = src_path.find(src_sdname)
-		# 		# Handles which subdir to remove from absolute path and convert to relative path
-		# 		if relative_path_index != -1:
-		# 			# TODO: Check to make sure is actually equal (dirname, dirname_20210803 throws an error for example)
-		# 			src_path_by_dir = src_path.split('/')
-		# 			if src_sdname == src_path_by_dir[-2]:
-		# 				located_in_subdir = True
-		# 				print('splitting {} on {}/'.format(src_path, src_sdname))
-		# 				rel_path = src_path.split(src_sdname+'/')[1]
-		# 				# if dst_root[-1] != '/':
-		# 				# 	dst_path += '/'
-		# 				dst_path += rel_path
-		# 				dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
-		# 				src_to_dst_pairs.append((src_path, dst_path))
-		# 				if dry_run:
-		# 					print("src: {} | dst: {}".format(src_path, dst_path))
-		#
-		#
-		# 	# If the added/modified filepath isn't located in a subdirectory of the gitrepo. We place it at root level of the git repo where its supposed to be.
-		# 	# located_in_subdir would be true here if the filepath contained a subdir
-		# 	# TODO: what if the path contains a subdirname way deeper in the path that matches one of the other subdir names. Then this breaks. Fix.
-		# 	if not located_in_subdir:
-		# 		print("not located in dir")
-		# 		dst_path = dst_root + a_diff.a_path
-		# 		print(src_path, dst_path)
-		# 		dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
-		# 		src_to_dst_pairs.append((src_path, dst_path))
-		#
-		# 	# Reset src and dst paths
+		dst_path = dst_root + a_diff.a_path
+		dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
+		src_to_dst_pairs.append((src_path, dst_path))
+	#
+	# # 	located_in_subdir = False
+	# # 	for src_sdname in src_subdir_names:
+	# # 		print(src_subdir_names)
+	# # 		print(src_sdname == src_path)
+	# # 		relative_path_index = src_path.find(src_sdname)
+	# # 		# Handles which subdir to remove from absolute path and convert to relative path
+	# # 		if relative_path_index != -1:
+	# # 			# TODO: Check to make sure is actually equal (dirname, dirname_20210803 throws an error for example)
+	# # 			src_path_by_dir = src_path.split('/')
+	# # 			if src_sdname == src_path_by_dir[-2]:
+	# # 				located_in_subdir = True
+	# # 				print('splitting {} on {}/'.format(src_path, src_sdname))
+	# # 				rel_path = src_path.split(src_sdname+'/')[1]
+	# # 				# if dst_root[-1] != '/':
+	# # 				# 	dst_path += '/'
+	# # 				dst_path += rel_path
+	# # 				dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
+	# # 				src_to_dst_pairs.append((src_path, dst_path))
+	# # 				if dry_run:
+	# # 					print("src: {} | dst: {}".format(src_path, dst_path))
+	# #
+	# #
+	# # 	# If the added/modified filepath isn't located in a subdirectory of the gitrepo. We place it at root level of the git repo where its supposed to be.
+	# # 	# located_in_subdir would be true here if the filepath contained a subdir
+	# # 	# TODO: what if the path contains a subdirname way deeper in the path that matches one of the other subdir names. Then this breaks. Fix.
+	# # 	if not located_in_subdir:
+	# # 		print("not located in dir")
+	# # 		dst_path = dst_root + a_diff.a_path
+	# # 		print(src_path, dst_path)
+	# # 		dst_path = remove_codecloud_path_prefixes(dst_path, BRANCH_NAME)
+	# # 		src_to_dst_pairs.append((src_path, dst_path))
+	# #
+	# # 	# Reset src and dst paths
 		src_path = GIT_REPO_DIR + '/'
 		dst_path = dst_root
 
 	return src_to_dst_pairs
 
 def prepare_changes_for_R(diff_data):
-	top_dir_for_non_jar_src_code = 'site_specific/{}'.format(BRANCH_NAME) + '/'
 	diff = diff_data['R']
 	src_dst_pairs_list = []
 	for a_diff in diff:
 		src = a_diff.a_path
-		is_related_to_jar_src_code = src.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code >=0:
-			dst = a_diff.b_path
-			dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
-			src_dst_pairs_list.append((src,dst))
+		dst = a_diff.b_path
+		dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
+		src_dst_pairs_list.append((src, dst))
 	return src_dst_pairs_list
 
 def prepare_changes_for_D(diff_data):
-	top_dir_for_non_jar_src_code = 'site_specific/{}'.format(BRANCH_NAME) + '/'
 	diff = diff_data['D']
 	src_dst_pairs_list = []
 	for a_diff in diff:
 		src = a_diff.a_path
-		is_related_to_jar_src_code = src.find(top_dir_for_non_jar_src_code)
 		# Dynamic path processing to get the path used relative to the root directory
-		if is_related_to_jar_src_code >=0:
-			dst = a_diff.b_path
-			dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
-			src_dst_pairs_list.append((src,dst))
+		dst = a_diff.b_path
+		dst = remove_codecloud_path_prefixes(dst, BRANCH_NAME)
+		src_dst_pairs_list.append((src,dst))
 	return src_dst_pairs_list
 
 
@@ -275,6 +267,7 @@ def check_for_jar_src_code_changes(src_dst_dict):
 
 
 
+
 if __name__ == "__main__":
 	# Gather, review, and deploy updates from CodeCloud
 
@@ -289,20 +282,38 @@ if __name__ == "__main__":
 	diff_local_vs_remote_paths, diff_objects = git_diff(repo=gr, output_dst=working_dir,rmt_name=REMOTE_NAME, branch_name=BRANCH_NAME, gitdir=GIT_REPO_DIR)
 	src_dst_pairs_dict = prepare_to_deploy_changes(diff_objects,dst_root=ROOT_DIR, dry_run=DRY_RUN)
 
+	# Call check_for_jar_src_code_changes based on current src_dst_pair_dict, WITHOUT any filtering that avoids placement on app VM
+	found_changes_to_jar_src_code = check_for_jar_src_code_changes(src_dst_pairs_dict)
+
+
+	change_type_keys = list(src_dst_pairs_dict.keys())
+	non_jar_related_src_dst_pairs_dict = {}
+	for letter in change_type_keys:
+		new_src_dst_pair_list = []
+		old_stc_dst_pair_list = src_dst_pairs_dict[letter]
+		for src_dst_pair in old_stc_dst_pair_list:
+			src, dst = src_dst_pair
+			if check_if_src_path_is_related_to_jar_source_code(apath=src) != -1: #-1 when it finds a path to jar source code in the string
+				# If not, add it to the list of files to copy their paths directly.
+				new_src_dst_pair_list.append((src, dst))
+		non_jar_related_src_dst_pairs_dict[letter] = new_src_dst_pair_list
+
+
+	# TODO: Trigger the ant build if found changes like below.
 	if not DRY_RUN:
 		# Merge the changes so the files can be copied
 		run_git_pull()
 
 		# Deploying updates...
 		try:
-			deploy_changes_for_A_or_M(src_dst_pairs_dict,letter='A', dry_run=DRY_RUN)
+			deploy_changes_for_A_or_M(non_jar_related_src_dst_pairs_dict,letter='A', dry_run=DRY_RUN)
 		except:
 			e = sys.exc_info()[0]
 			print(str(e))
 			print('failed to update ADDED files')
 
 		try:
-			deploy_changes_for_A_or_M(src_dst_pairs_dict,letter='M', dry_run=DRY_RUN)
+			deploy_changes_for_A_or_M(non_jar_related_src_dst_pairs_dict,letter='M', dry_run=DRY_RUN)
 		except:
 			e = sys.exc_info()[0]
 			print(str(e))
@@ -310,7 +321,7 @@ if __name__ == "__main__":
 			print('failed to update MODIFIED files')
 
 		try:
-			deploy_changes_for_R(src_dst_pairs_dict, dry_run=DRY_RUN)
+			deploy_changes_for_R(non_jar_related_src_dst_pairs_dict, dry_run=DRY_RUN)
 		except:
 			e = sys.exc_info()[0]
 			print(str(e))
@@ -318,7 +329,7 @@ if __name__ == "__main__":
 			print('failed to migrate RENAMED files')
 
 		try:
-			deploy_changes_for_D(src_dst_pairs_dict, dry_run=DRY_RUN)
+			deploy_changes_for_D(non_jar_related_src_dst_pairs_dict, dry_run=DRY_RUN)
 		except:
 			e = sys.exc_info()[0]
 			print(str(e))
@@ -327,8 +338,8 @@ if __name__ == "__main__":
 
 	# pprint(src_dst_pairs_dict)
 
+
 	# Ant Build to create new Jars
-	found_changes_to_jar_src_code = check_for_jar_src_code_changes(src_dst_pairs_dict)
 	if found_changes_to_jar_src_code:
 		print("\n")
 		print("Creating New .jar/.war Files Based on Changes to Source Code")
