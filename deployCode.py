@@ -11,6 +11,7 @@ from pathlib import Path
 # Reference GitPython module doc here: https://buildmedia.readthedocs.org/media/pdf/gitpython/1.0.2/gitpython.pdf
 DRY_RUN = True
 ROOT_DIR = './'
+# TODO: add slash to beginning of GIT_REPO_DIR before deploying on app VM
 GIT_REPO_DIR = 'datadisk/aotx_azure'
 COMPILED_JARS_DIR = GIT_REPO_DIR + '/jars'
 EWO_JAR_SRC_FILES = GIT_REPO_DIR + '/ewo'
@@ -21,16 +22,16 @@ JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure']
 
 REMOTE_NAME = 'origin'
 BRANCH_NAME = 'main' #Examples: SE, WEST, MOKA
-REMOTE_BRANCH = 'remotes/{}/{}'.format(REMOTE_NAME, BRANCH_NAME)
+REMOTE_BRANCH = 'remotes{}{}'.format(REMOTE_NAME, BRANCH_NAME)
 
 
 
 def git_fetch(output_dst, rmt_name,branch_name, gitdir=GIT_REPO_DIR):
 	# TODO: Fetch from SE only
-	os.system('cd /{} && git fetch {} {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
+	os.system('cd {} && git fetch {} {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
 
 def git_diff(repo, rmt_name, branch_name, output_dst, gitdir=GIT_REPO_DIR):
-	os.system('cd /{} && git fetch {} {} && git diff --name-only {}/{} > {}/latest_git_diff.txt'.format(gitdir, rmt_name, branch_name, rmt_name, branch_name, output_dst))
+	os.system('cd {} && git fetch {} {} && git diff --name-only {}/{} > {}/latest_git_diff.txt'.format(gitdir, rmt_name, branch_name, rmt_name, branch_name, output_dst))
 	diff_paths = {
 		'A': [],
 		'D': [],
@@ -216,10 +217,10 @@ def deploy_changes_for_R(src_dst_dict, dry_run=False):
 def run_git_pull(output_dst=ROOT_DIR):
 	p = Path(os.getcwd()).parents[0]
 	if ROOT_DIR[-1] == '/':
-		os.system('cd /{} && git pull > {}latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd {} && git pull > {}latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
 	else:
-		os.system('cd /{} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
 def ant_build(path_to_jar_src_code, xml_path, jarname):
 	# TODO: write the proper command. Send jars to JAR folder within site specific.
@@ -247,7 +248,7 @@ if __name__ == "__main__":
 	gr = Repo(GIT_REPO_DIR)
 	working_dir = os.getcwd()
 
-	os.system('cd /{} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
+	os.system('cd {} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
 	git_fetch(output_dst=working_dir, rmt_name=REMOTE_NAME, branch_name=BRANCH_NAME, gitdir=GIT_REPO_DIR)
 
 	# Reviewing changes...
@@ -314,4 +315,6 @@ if __name__ == "__main__":
 		now = datetime.utcnow()
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
-		os.system('cd /{} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
+		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
+
+
