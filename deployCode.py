@@ -288,8 +288,8 @@ if __name__ == "__main__":
 	# gr_path = os.path.join(cwd, ROOT_DIR, GIT_REPO_DIR)
 	gr_path = os.path.join(cwd_parent, GIT_REPO_DIR)
 	# print(gr_path)
-	GIT_REPO_DIR = gr_path
-	gr = Repo(gr_path)
+	# GIT_REPO_DIR = gr_path
+	gr = Repo(GIT_REPO_DIR)
 
 	# gr = Repo(GIT_REPO_DIR)
 	working_dir = os.getcwd()
