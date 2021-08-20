@@ -143,6 +143,8 @@ def prepare_changes_for_A_or_M(letter, diff_data, dst_root=ROOT_DIR, dry_run=Fal
 	return src_to_dst_pairs
 
 def prepare_changes_for_R(diff_data):
+	print("working on R:")
+
 	diff = diff_data['R']
 	src_dst_pairs_list = []
 	for a_diff in diff:
@@ -154,6 +156,7 @@ def prepare_changes_for_R(diff_data):
 	return src_dst_pairs_list
 
 def prepare_changes_for_D(diff_data):
+	print("working on R:")
 	diff = diff_data['D']
 	src_dst_pairs_list = []
 	for a_diff in diff:
@@ -384,6 +387,4 @@ if __name__ == "__main__":
 
 	# TODO: figure out where we want to want to run this file from on the app VM, make sure that doesn't break anything.
 	# Dependency on Jim to get the xml file locations
-	#
-
 
