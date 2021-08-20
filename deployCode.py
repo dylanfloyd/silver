@@ -169,11 +169,11 @@ def prepare_to_deploy_changes(diff_data, dst_root=ROOT_DIR, dry_run=False):
 	# Gather list of directories within the git repo dir. Used in dynamic path processing to get the relative path.
 	src_to_dst_pairs_all = {}
 	src_subdirs = {}
-	for subdir in os.scandir(GIT_REPO_DIR):
-		if subdir.is_dir():
-			dir_name = os.path.basename(subdir)
-			src_subdirs[dir_name] = len(dir_name)
-	src_subdir_names = src_subdirs.keys()
+	# for subdir in os.scandir(GIT_REPO_DIR):
+	# 	if subdir.is_dir():
+	# 		dir_name = os.path.basename(subdir)
+	# 		src_subdirs[dir_name] = len(dir_name)
+	# src_subdir_names = src_subdirs.keys()
 
 
 	# HANDLING 'A': FILEPATHS FOR ADDED FILES
@@ -248,10 +248,12 @@ def run_git_pull(output_dst=ROOT_DIR):
 	else:
 		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
-def ant_build(path_to_jar_src_code, xml_path, jarname):
+def ant_build(jarname, xml_dir_path, xml_filename):
 	# TODO: write the proper command. Send jars to JAR folder within site specific.
 	# xml path is relative to the jar's src code
-	print("ant build {}/{} {}".format(path_to_jar_src_code, xml_path, jarname))
+	xml_path = xml_dir_path + '/' +  xml_filename
+	# print("cd {} && ant {} -f {}".format(xml_dir_path, jarname, xml_path))
+	print("ant {} -f {}".format(jarname, xml_path))
 
 
 def check_for_jar_src_code_changes(src_dst_dict):
@@ -272,7 +274,16 @@ if __name__ == "__main__":
 	# Gather, review, and deploy updates from CodeCloud
 
 	# Gathering...
-	gr = Repo(GIT_REPO_DIR)
+	cwd = os.getcwd()
+	cwd_parent = Path(cwd).parent
+	# print(cwd)
+	# gr_path = os.path.join(cwd, ROOT_DIR, GIT_REPO_DIR)
+	gr_path = os.path.join(cwd_parent, GIT_REPO_DIR)
+	# print(gr_path)
+	GIT_REPO_DIR = gr_path
+	gr = Repo(gr_path)
+
+	# gr = Repo(GIT_REPO_DIR)
 	working_dir = os.getcwd()
 
 	os.system('cd {} && git status > {}/prev_git_status.txt'.format(GIT_REPO_DIR, working_dir))
@@ -284,7 +295,6 @@ if __name__ == "__main__":
 
 	# Call check_for_jar_src_code_changes based on current src_dst_pair_dict, WITHOUT any filtering that avoids placement on app VM
 	found_changes_to_jar_src_code = check_for_jar_src_code_changes(src_dst_pairs_dict)
-
 
 	change_type_keys = list(src_dst_pairs_dict.keys())
 	non_jar_related_src_dst_pairs_dict = {}
