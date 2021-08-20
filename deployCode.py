@@ -250,15 +250,15 @@ def run_git_pull(output_dst=ROOT_DIR):
 	else:
 		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
-def ant_build(jarname):
-	# TODO: write the proper command. Send jars to JAR folder within site specific.
-	# xml path is relative to the jar's src code
+def ant_build(jarname, dry_run=False):
 	cwd = os.getcwd()
 	cwd_parent = Path(cwd).parent #should be root dir
-	# gr_path = os.path.join(cwd_parent, GIT_REPO_DIR)
-	xml_path = gr_path + '/' + XML_DIR_PATH
-	# print("cd {} && ant {} -f {}".format(xml_dir_path, jarname, xml_path))
-	print("ant {} -f {}".format(jarname))
+	xml_path = str(cwd_parent) + '/' + XML_DIR_PATH
+	cmd = "ant {} -f {}".format(jarname, xml_path)
+	if not dry_run:
+		os.system(cmd)
+	else:
+		print(cmd)
 
 
 def check_for_jar_src_code_changes(src_dst_dict):
@@ -357,18 +357,17 @@ if __name__ == "__main__":
 	if found_changes_to_jar_src_code:
 		print("\n")
 		print("Creating New .jar/.war Files Based on Changes to Source Code")
-		path_to_jar_src_code = 'path_to_jar_src_code'
-		xml_path = 'xml.build'
-		jarname = 'jarname'
-		# TODO: Call real JAR / WAR creation commands
 
-		ant_build(jarname='ewo')
-		# ant_build(path_to_jar_src_code, xml_path, 'ewo')
-		# ant_build(path_to_jar_src_code, xml_path, 'cic')
-		# ant_build(path_to_jar_src_code, xml_path, 'aotl-project')
-		# ant_build(path_to_jar_src_code, xml_path, 'aotx-secure')
-		# ant_build(path_to_jar_src_code, xml_path, 'aotlservlet')
-		# ant_build(path_to_jar_src_code, xml_path, 'aotxreports')
+		ant_build(jarname='ewo', dry_run=DRY_RUN)
+		ant_build(jarname='cic', dry_run=DRY_RUN)
+		ant_build(jarname='aotl-project', dry_run=DRY_RUN)
+		ant_build(jarname='aotx-secure', dry_run=DRY_RUN)
+		ant_build(jarname='aotlservlet', dry_run=DRY_RUN)
+		ant_build(jarname='aotxreports', dry_run=DRY_RUN)
+
+
+
+
 
 		#command looks like: 'ant {} {}'.format(jar_type_name, path_to_xml) #see ellen's xml code
 
@@ -379,6 +378,7 @@ if __name__ == "__main__":
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
 		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
+		os.system('git push')
 
 	pprint(non_jar_related_src_dst_pairs_dict)
 
