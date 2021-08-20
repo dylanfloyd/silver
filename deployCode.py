@@ -12,6 +12,7 @@ from pathlib import Path
 DRY_RUN = True
 ROOT_DIR = './'
 # TODO: add slash to beginning of GIT_REPO_DIR before deploying on app VM
+# TODO: replace: /aotx_azure with /{}.format(BRANCH_NAME)) on app VM
 GIT_REPO_DIR = 'datadisk/aotx_azure'
 COMPILED_JARS_DIR = GIT_REPO_DIR + '/jars'
 EWO_JAR_SRC_FILES = GIT_REPO_DIR + '/ewo'
@@ -19,6 +20,7 @@ CIC_JAR_SRC_FILES = GIT_REPO_DIR + '/cic'
 AOTX_SECURE_JAR_SRC_FILES = GIT_REPO_DIR + '/aotx-secure'
 AOTL_PROJECT_JAR_SRC_FILES = GIT_REPO_DIR + '/aotl-project'
 JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure']
+XML_DIR_PATH = GIT_REPO_DIR + '/site_agnostic/build.xml'
 
 REMOTE_NAME = 'origin'
 BRANCH_NAME = 'main' #Examples: SE, WEST, MOKA
@@ -248,12 +250,15 @@ def run_git_pull(output_dst=ROOT_DIR):
 	else:
 		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
 
-def ant_build(jarname, xml_dir_path, xml_filename):
+def ant_build(jarname):
 	# TODO: write the proper command. Send jars to JAR folder within site specific.
 	# xml path is relative to the jar's src code
-	xml_path = xml_dir_path + '/' +  xml_filename
+	cwd = os.getcwd()
+	cwd_parent = Path(cwd).parent #should be root dir
+	# gr_path = os.path.join(cwd_parent, GIT_REPO_DIR)
+	xml_path = gr_path + '/' + XML_DIR_PATH
 	# print("cd {} && ant {} -f {}".format(xml_dir_path, jarname, xml_path))
-	print("ant {} -f {}".format(jarname, xml_path))
+	print("ant {} -f {}".format(jarname))
 
 
 def check_for_jar_src_code_changes(src_dst_dict):
@@ -353,15 +358,18 @@ if __name__ == "__main__":
 		print("\n")
 		print("Creating New .jar/.war Files Based on Changes to Source Code")
 		path_to_jar_src_code = 'path_to_jar_src_code'
-		xml_path = 'xml_path'
+		xml_path = 'xml.build'
 		jarname = 'jarname'
 		# TODO: Call real JAR / WAR creation commands
 
-		ant_build(path_to_jar_src_code, xml_path, 'ewo')
-		ant_build(path_to_jar_src_code, xml_path, 'cic')
-		ant_build(path_to_jar_src_code, xml_path, 'aotl-project')
-		ant_build(path_to_jar_src_code, xml_path, 'aotx-secure')
-		ant_build(path_to_jar_src_code, xml_path, 'war')
+		ant_build(jarname='ewo')
+		# ant_build(path_to_jar_src_code, xml_path, 'ewo')
+		# ant_build(path_to_jar_src_code, xml_path, 'cic')
+		# ant_build(path_to_jar_src_code, xml_path, 'aotl-project')
+		# ant_build(path_to_jar_src_code, xml_path, 'aotx-secure')
+		# ant_build(path_to_jar_src_code, xml_path, 'aotlservlet')
+		# ant_build(path_to_jar_src_code, xml_path, 'aotxreports')
+
 		#command looks like: 'ant {} {}'.format(jar_type_name, path_to_xml) #see ellen's xml code
 
 		# TODO: Call function from other python script to move all jars/war file sin right repo. (Including inside gitrepo dir!)
