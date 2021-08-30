@@ -34,7 +34,6 @@ XML_DIR_PATH = GIT_REPO_DIR + '/site_agnostic/build.xml'
 
 
 def git_fetch(output_dst, rmt_name,branch_name, gitdir=GIT_REPO_DIR):
-	# TODO: Fetch from SE only
 	os.system('cd {} && git fetch {} {} && git status > {}/latest_git_status.txt'.format(gitdir, rmt_name, branch_name, output_dst))
 
 def git_diff(repo, rmt_name, branch_name, output_dst, gitdir=GIT_REPO_DIR):
@@ -161,7 +160,7 @@ def prepare_changes_for_R(diff_data):
 	return src_dst_pairs_list
 
 def prepare_changes_for_D(diff_data):
-	print("working on R:")
+	print("working on D:")
 	diff = diff_data['D']
 	src_dst_pairs_list = []
 	for a_diff in diff:
@@ -447,6 +446,7 @@ if __name__ == "__main__":
 	# Ant Build to create new Jars
 	if found_changes_to_jar_src_code:
 		print("\n")
+		print("Found changes to jar/war file source code")
 		print("Creating New .jar/.war Files Based on Changes to Source Code")
 
 		# TODO: Change these inputs to DRY_RUN instead of True
@@ -471,6 +471,16 @@ if __name__ == "__main__":
 		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
 		os.system('git push')
 
+	# TODO: Delete these lines, using them for testing. Only relevant if used under the if statement above in prod.
+	##########################################
+	print("JAR File Locations")
+	jar_files_src_paths = getJarFilesFullSrcPaths(LOCAL_GIT_JAR_DIR_PATH)
+	# Setting verbose = True will print each pair of source and destination locations involved with the JAR updates
+	# Setting dryrun = True will do everything the same except the final step of actually copying the files over
+	jar_filenames, jar_dst_filepaths = replaceOldJARs(jar_files_src_paths, verbose=VERBOSE, dryrun=True)
+	##########################################
+
+	print("Non-Jar Related Src | Dst Pairs")
 	pprint(non_jar_related_src_dst_pairs_dict)
 
 	# TODO: figure out where we want to want to run this file from on the app VM, make sure that doesn't break anything.
