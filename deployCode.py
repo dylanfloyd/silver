@@ -12,16 +12,18 @@ from pathlib import Path
 
 # Reference GitPython module doc here: https://buildmedia.readthedocs.org/media/pdf/gitpython/1.0.2/gitpython.pdf
 DRY_RUN = True
+VERBOSE = True
 ROOT_DIR = './'
 # TODO: add slash to beginning of GIT_REPO_DIR before deploying on app VM
 # TODO: replace: /aotx_azure with /{}.format(BRANCH_NAME)) on app VM
 GIT_REPO_DIR = 'datadisk/aotx_azure'
+LOCAL_GIT_JAR_DIR_PATH = GIT_REPO_DIR + '/site_specific/jars' #also contains .war
 COMPILED_JARS_DIR = GIT_REPO_DIR + '/jars'
 EWO_JAR_SRC_FILES = GIT_REPO_DIR + '/ewo'
 CIC_JAR_SRC_FILES = GIT_REPO_DIR + '/cic'
 AOTX_SECURE_JAR_SRC_FILES = GIT_REPO_DIR + '/aotx-secure'
 AOTL_PROJECT_JAR_SRC_FILES = GIT_REPO_DIR + '/aotl-project'
-JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure']
+JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure','aotlservlet', 'aotxreports']
 XML_DIR_PATH = GIT_REPO_DIR + '/site_agnostic/build.xml'
 
 REMOTE_NAME = 'origin'
@@ -271,12 +273,95 @@ def check_for_jar_src_code_changes(src_dst_dict):
 	for changes in change_types:
 		for c in changes:
 			src, dst = c
-			first_dir = src.split('/')[0]
-			if first_dir in JAR_SRC_DIRNAMES:
-				return True
+			dirs = src.split('/')
+			if "site_agnostic" in src:
+				print('found war change')
+				i = dirs.index('site_agnostic')
+				next_subdir = dirs[i+1]
+				if next_subdir in JAR_SRC_DIRNAMES:
+					print('^^^ {}: '.format(next_subdir))
+					return True
+
+			elif "site_specific" in src:
+				print('found jar change')
+				i = dirs.index('site_agnostic')
+				next_subdir = dirs[i+1]
+				if next_subdir in JAR_SRC_DIRNAMES:
+					print('^^^ {}: '.format(next_subdir))
+					return True
+			else:
+				pass
+
+
+			# print("dirs: {} ".format(dirs))
+			# first_dir = dirs[0]
+			# # first_dir = src.split('/')[0]
+			# if first_dir in JAR_SRC_DIRNAMES:
+			# 	return True
 
 	return False
 
+def findPathsToJar(filename, rootdir='.'):
+    # print(f'Grabbing all filepaths for {filename}')  # Press Ctrl+F8 to toggle the breakpoint.
+    # len_git_dir_path = len(GIT_REPO_DIR)
+    locations = []
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            bname = os.path.basename(file)
+            if bname == filename:
+                # TODO: remove the dirs used in CodeCloud but are not on server
+                fullpath = os.path.join(subdir, file)
+                locations.append(fullpath)
+
+    return locations
+
+
+def findPathsToAllJars(filenames, rootdir='.'):
+    '''
+    :param filenames: a list of jar filename strings. i.e. ['aotxweb.jar', 'xyz.war, 'cic.jar']
+    :param rootdir: a string of the directory path to recursively search through
+    :return: a dictionary mapping the basefilename to a list of all the filepaths discovered in the rootdir.
+    '''
+
+    len_git_dir_path = len(GIT_REPO_DIR)
+    relevant_filepaths = {}
+    for fname in filenames:
+        list_of_paths_to_fname = findPathsToJar(fname, rootdir=rootdir)
+        relevant_paths_to_fname = []
+        # TODO: Verify if we should ignore gitrepo dir when making replacements
+        # Filtering out gitrepo dir b/c irrelevant to update these
+        for apath in list_of_paths_to_fname:
+            if apath[0:len_git_dir_path] != GIT_REPO_DIR:
+                relevant_paths_to_fname.append(apath)
+        relevant_filepaths[fname] = relevant_paths_to_fname
+
+    return relevant_filepaths
+
+def replaceOldJARs(source_filepaths, rootdir='.', verbose=False, dryrun=False):
+    filenames = []
+    for fpath in source_filepaths:
+        filenames.append(os.path.basename(fpath))
+    destination_filepaths = findPathsToAllJars(filenames, rootdir=rootdir)
+    for fname, fpath in zip(filenames, source_filepaths):
+        src = fpath
+        dest_fpaths = destination_filepaths[fname]
+        for dst in dest_fpaths:
+            if verbose:
+                print('src: {} | dst: {}'.format(src, dst))
+            if dryrun is False:
+                newPath = shutil.copy(src, dst, follow_symlinks=False)
+
+    if verbose:
+        print("Successfully updated JARs")
+
+    return filenames, destination_filepaths
+
+def getJarFilesFullSrcPaths(gitrepo_dir):
+    jar_files_source_paths = []
+    for apath in os.listdir(gitrepo_dir):
+        full_file_source_path = os.path.join(gitrepo_dir, apath)
+        jar_files_source_paths.append(full_file_source_path)
+    return jar_files_source_paths
 
 
 
@@ -363,22 +448,22 @@ if __name__ == "__main__":
 		print("\n")
 		print("Creating New .jar/.war Files Based on Changes to Source Code")
 
-		ant_build(jarname='ewo', dry_run=DRY_RUN)
-		ant_build(jarname='cic', dry_run=DRY_RUN)
-		ant_build(jarname='aotl-project', dry_run=DRY_RUN)
-		ant_build(jarname='aotx-secure', dry_run=DRY_RUN)
-		ant_build(jarname='aotlservlet', dry_run=DRY_RUN)
-		ant_build(jarname='aotxreports', dry_run=DRY_RUN)
+		# TODO: Change these inputs to DRY_RUN instead of True
+		ant_build(jarname='ewo', dry_run=True)
+		ant_build(jarname='cic', dry_run=True)
+		ant_build(jarname='aotl-project', dry_run=True)
+		ant_build(jarname='aotx-secure', dry_run=True)
+		ant_build(jarname='aotlservlet', dry_run=True)
+		ant_build(jarname='aotxreports', dry_run=True)
 
 
+		# Call function to move all jars/war file in right repo. (Including inside gitrepo dir!)
+		jar_files_src_paths = getJarFilesFullSrcPaths(LOCAL_GIT_JAR_DIR_PATH)
+		# Setting verbose = True will print each pair of source and destination locations involved with the JAR updates
+		# Setting dryrun = True will do everything the same except the final step of actually copying the files over
+		jar_filenames, jar_dst_filepaths = replaceOldJARs(jar_files_src_paths, verbose=VERBOSE, dryrun=DRY_RUN)
 
-
-
-		#command looks like: 'ant {} {}'.format(jar_type_name, path_to_xml) #see ellen's xml code
-
-		# TODO: Call function from other python script to move all jars/war file sin right repo. (Including inside gitrepo dir!)
-
-		# TODO: Add in commit and push once above is finished so that jars created on the VM are also in code cloud
+		# Added in commit and push once above is finished so that jars created inside the VM's gitrepo are also in code cloud
 		now = datetime.utcnow()
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
@@ -388,5 +473,4 @@ if __name__ == "__main__":
 	pprint(non_jar_related_src_dst_pairs_dict)
 
 	# TODO: figure out where we want to want to run this file from on the app VM, make sure that doesn't break anything.
-	# Dependency on Jim to get the xml file locations
 
