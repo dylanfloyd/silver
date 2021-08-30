@@ -469,7 +469,7 @@ if __name__ == "__main__":
 		jar_last_updated = str(now).split('.')[0] # Gets current time and date in str format
 		msg = "Updated .jars and .war based on latest changes to source code at {} UTC".format(jar_last_updated)
 		os.system('cd {} && git add . && git commit -m "{}"'.format(GIT_REPO_DIR, msg))
-		os.system('git push')
+		os.system('git push {} {}'.format(REMOTE_NAME, BRANCH_NAME)) #EXAMPLE: origin SE
 
 	# TODO: Delete these lines, using them for testing. Only relevant if used under the if statement above in prod.
 	##########################################
