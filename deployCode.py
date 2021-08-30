@@ -16,7 +16,11 @@ VERBOSE = True
 ROOT_DIR = './'
 # TODO: add slash to beginning of GIT_REPO_DIR before deploying on app VM
 # TODO: replace: /aotx_azure with /{}.format(BRANCH_NAME)) on app VM
-GIT_REPO_DIR = 'datadisk/aotx_azure'
+REMOTE_NAME = 'origin'
+BRANCH_NAME = 'SE' #Examples: SE, WEST, MOKA
+REMOTE_BRANCH = 'remotes/{}/{}'.format(REMOTE_NAME, BRANCH_NAME)
+
+GIT_REPO_DIR = 'datadisk/{}'.format(BRANCH_NAME)
 LOCAL_GIT_JAR_DIR_PATH = GIT_REPO_DIR + '/site_specific/jars' #also contains .war
 COMPILED_JARS_DIR = GIT_REPO_DIR + '/jars'
 EWO_JAR_SRC_FILES = GIT_REPO_DIR + '/ewo'
@@ -26,9 +30,6 @@ AOTL_PROJECT_JAR_SRC_FILES = GIT_REPO_DIR + '/aotl-project'
 JAR_SRC_DIRNAMES = ['ewo', 'cic', 'aotl-project', 'aotx-secure','aotlservlet', 'aotxreports']
 XML_DIR_PATH = GIT_REPO_DIR + '/site_agnostic/build.xml'
 
-REMOTE_NAME = 'origin'
-BRANCH_NAME = 'main' #Examples: SE, WEST, MOKA
-REMOTE_BRANCH = 'remotes{}{}'.format(REMOTE_NAME, BRANCH_NAME)
 
 
 
@@ -252,10 +253,10 @@ def deploy_changes_for_R(src_dst_dict, dry_run=False):
 def run_git_pull(output_dst=ROOT_DIR):
 	p = Path(os.getcwd()).parents[0]
 	if ROOT_DIR[-1] == '/':
-		os.system('cd {} && git pull > {}latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd {} && git pull {} {} > {}latest_git_pull.txt'.format(GIT_REPO_DIR,REMOTE_NAME, BRANCH_NAME, p))
 
 	else:
-		os.system('cd {} && git pull > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, p))
+		os.system('cd {} && git pull {} {} > {}/latest_git_pull.txt'.format(GIT_REPO_DIR, {}, {}, p))
 
 def ant_build(jarname, dry_run=False):
 	cwd = os.getcwd()
